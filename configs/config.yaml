@@ -16,7 +16,7 @@ model:
 data:
   rnacentral:
     dataset: multimolecule/rnacentral.1024
-    n_sequences: 300                   # first 300 streamed sequences within the length limit
+    n_sequences: 5000                  # first 5000 streamed sequences within the length limit
     max_length: 512
 
 sae:
@@ -24,8 +24,8 @@ sae:
   dict_size: 8192
   learning_rate: 1.0e-4
   batch_size: 256
-  epochs: 20
+  epochs: 40
   seeds: [0]
   normalize_eps: 1.0e-6                   # per-dimension z-scoring of activations
   l1:
-    l1_coeff: 1.0e-3
+    l1_coeff: 3.0e-3
