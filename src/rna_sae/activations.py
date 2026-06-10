@@ -1,6 +1,8 @@
 """Cached RiNALMo activations: extraction, loading and normalization."""
 import torch
 
+from rna_sae.config import data_path
+
 
 def load_model(model_config, device):
     import multimolecule  # noqa: F401  (registers RiNALMo with transformers)
@@ -22,3 +24,12 @@ def hidden_states(tokenizer, model, sequences, layers, device):
     return {layer: [outputs.hidden_states[layer][i, 1:n - 1, :].cpu() for i, n in enumerate(lengths)]
             for layer in layers}
 
+
+def load_rnacentral_vectors(config, layer):
+    """All cached RNAcentral token vectors for one layer, as one float32 matrix."""
+    sequences = torch.load(data_path(config, "activations", layer=layer), weights_only=True)
+    return torch.cat(sequences, dim=0).float()
+
+
+def normalize(vectors, mean, std, eps):
+    return (vectors - mean) / (std + eps)

@@ -3,6 +3,7 @@
 paths:
   data_dir: data
   activations: "{data_dir}/activations/layer_{layer}.pt"                 # RNAcentral sample, per layer
+  checkpoints: "{data_dir}/checkpoints/{arch}/sae_{arch}_layer{layer}_seed{seed}.pt"
   results_dir: results
 
 model:
@@ -17,3 +18,14 @@ data:
     dataset: multimolecule/rnacentral.1024
     n_sequences: 300                   # first 300 streamed sequences within the length limit
     max_length: 512
+
+sae:
+  input_dim: 1280
+  dict_size: 8192
+  learning_rate: 1.0e-4
+  batch_size: 256
+  epochs: 20
+  seeds: [0]
+  normalize_eps: 1.0e-6                   # per-dimension z-scoring of activations
+  l1:
+    l1_coeff: 1.0e-3
