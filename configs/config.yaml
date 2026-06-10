@@ -28,4 +28,4 @@ sae:
   seeds: [0]
   normalize_eps: 1.0e-6                   # per-dimension z-scoring of activations
   l1:
-    l1_coeff: 3.0e-3
+    l1_coeff: 1.0e-2
