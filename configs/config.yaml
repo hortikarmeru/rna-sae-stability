@@ -6,7 +6,7 @@ paths:
   results_dir: results
 
 model:
-  name: multimolecule/rinalmo
+  name: multimolecule/rinalmo-giga     # 33 layers, hidden size 1280
   tokenizer: multimolecule/rna
   layers: [9, 18]                      # a middle and a late block
   dtype: float16
