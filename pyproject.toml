@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rna-sae"
+version = "0.1.0"
+description = "Seed stability of sparse autoencoder features in the RiNALMo RNA language model"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Meru Hortikar" }]
+requires-python = ">=3.10"
+dependencies = ["torch", "numpy", "scipy", "pyyaml", "datasets", "multimolecule"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,19 @@
+# All paths, model choices and hyperparameters. Scripts read from here; no hard-coded numbers.
+
+paths:
+  data_dir: data
+  activations: "{data_dir}/activations/layer_{layer}.pt"                 # RNAcentral sample, per layer
+  results_dir: results
+
+model:
+  name: multimolecule/rinalmo
+  tokenizer: multimolecule/rinalmo
+  layers: [9, 18]                      # a middle and a late block
+  dtype: float16
+  batch_size: 8
+
+data:
+  rnacentral:
+    dataset: multimolecule/rnacentral.1024
+    n_sequences: 300                   # first 300 streamed sequences within the length limit
+    max_length: 512

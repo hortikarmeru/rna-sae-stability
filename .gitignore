@@ -1,0 +1,19 @@
+# Activations and checkpoints (~10 GB); rebuilt by scripts 00-02
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Run logs
+logs/

@@ -1,0 +1,18 @@
+# Versions used for the results in results/ (RTX 4070, CUDA 12.1).
+name: rna-sae
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - --extra-index-url https://download.pytorch.org/whl/cu121
+      - torch==2.5.1
+      - numpy==2.2.6
+      - scipy==1.15.3
+      - pyyaml==6.0.3
+      - datasets==5.0.0
+      - transformers==5.12.1
+      - git+https://github.com/DLS5-Omics/multimolecule.git@f46a10b1ff76   # 0.2.1.dev6
+      - pytest
+      - -e .
