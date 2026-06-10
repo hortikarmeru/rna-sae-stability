@@ -3,6 +3,7 @@ import torch
 
 
 def load_model(model_config, device):
+    import multimolecule  # noqa: F401  (registers RiNALMo with transformers)
     from multimolecule import RiNALMoModel, RnaTokenizer
     tokenizer = RnaTokenizer.from_pretrained(model_config["tokenizer"])
     model = RiNALMoModel.from_pretrained(model_config["name"]).to(device).eval()

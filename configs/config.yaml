@@ -7,7 +7,7 @@ paths:
 
 model:
   name: multimolecule/rinalmo
-  tokenizer: multimolecule/rinalmo
+  tokenizer: multimolecule/rna
   layers: [9, 18]                      # a middle and a late block
   dtype: float16
   batch_size: 8
