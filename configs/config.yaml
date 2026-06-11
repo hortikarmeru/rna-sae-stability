@@ -25,7 +25,7 @@ sae:
   learning_rate: 1.0e-4
   batch_size: 256
   epochs: 40
-  seeds: [0]
+  seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # only the seed differs between runs: 45 pairs per layer
   normalize_eps: 1.0e-6                   # per-dimension z-scoring of activations
   l1:
     l1_coeff: 1.4e-2                       # tuned from 1e-2 / 2e-2 toward the target sparsity
