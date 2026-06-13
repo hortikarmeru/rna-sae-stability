@@ -1,0 +1,18 @@
+"""Cross-seed matching of SAE features."""
+import torch
+from scipy.optimize import linear_sum_assignment
+
+
+def unit_decoder(sae):
+    """Decoder columns scaled to unit length (one column per feature)."""
+    weight = sae.decoder.weight
+    return weight / (weight.norm(dim=0, keepdim=True) + 1e-8)
+
+
+def match_features(decoder_a, decoder_b):
+    """One-to-one matching of features between two SAEs that maximizes total cosine similarity
+    (Hungarian algorithm). Returns (rows, cols, similarities) with rows/cols indexing the
+    features of a and b."""
+    similarity = decoder_a.T @ decoder_b
+    rows, cols = linear_sum_assignment((-similarity).cpu().numpy())
+    return rows, cols, similarity[rows, cols].cpu()

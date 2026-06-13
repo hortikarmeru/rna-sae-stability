@@ -29,3 +29,7 @@ sae:
   normalize_eps: 1.0e-6                   # per-dimension z-scoring of activations
   l1:
     l1_coeff: 1.4e-2                       # tuned from 1e-2 / 2e-2 toward the target sparsity
+
+analysis:
+  eval_batch_size: 4096
+  cosine_threshold: 0.7          # matched decoder cosine >= this counts as a stable feature
