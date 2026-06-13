@@ -13,16 +13,16 @@ def firing_counts(sae, normalized_vectors, batch_size, device):
     return counts.cpu()
 
 
-def unit_decoder(sae):
-    """Decoder columns scaled to unit length (one column per feature)."""
-    weight = sae.decoder.weight
+def unit_decoder(sae, alive_mask):
+    """Decoder columns of the alive features, scaled to unit length (one column per feature)."""
+    weight = sae.decoder.weight[:, alive_mask.to(sae.decoder.weight.device)]
     return weight / (weight.norm(dim=0, keepdim=True) + 1e-8)
 
 
 def match_features(decoder_a, decoder_b):
     """One-to-one matching of features between two SAEs that maximizes total cosine similarity
-    (Hungarian algorithm). Returns (rows, cols, similarities) with rows/cols indexing the
-    features of a and b."""
+    (Hungarian algorithm). Returns (rows, cols, similarities) with rows/cols indexing the alive
+    features of a and b. Only alive features are matched: dead columns were never trained."""
     similarity = decoder_a.T @ decoder_b
     rows, cols = linear_sum_assignment((-similarity).cpu().numpy())
     return rows, cols, similarity[rows, cols].cpu()
