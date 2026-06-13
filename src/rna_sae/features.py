@@ -1,6 +1,16 @@
-"""Cross-seed matching of SAE features."""
+"""Feature firing statistics and cross-seed matching of SAE features."""
 import torch
 from scipy.optimize import linear_sum_assignment
+
+
+@torch.no_grad()
+def firing_counts(sae, normalized_vectors, batch_size, device):
+    """How many of the input vectors each dictionary feature fires on (activation > 0)."""
+    counts = torch.zeros(sae.decoder.weight.shape[1], device=device)
+    for i in range(0, normalized_vectors.shape[0], batch_size):
+        _, features = sae(normalized_vectors[i:i + batch_size].to(device))
+        counts += (features > 0).float().sum(dim=0)
+    return counts.cpu()
 
 
 def unit_decoder(sae):
