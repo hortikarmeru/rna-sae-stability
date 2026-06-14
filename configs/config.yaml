@@ -23,6 +23,7 @@ data:
     dataset: multimolecule/bprna-90
     n_sequences: 500
     max_length: 512
+    labels: {S: Stem, H: Hairpin Loop, I: Internal Loop, B: Bulge, M: Multiloop, E: External Loop, X: Ambiguous}
 
 sae:
   input_dim: 1280
@@ -38,3 +39,6 @@ sae:
 analysis:
   eval_batch_size: 4096
   cosine_threshold: 0.7          # matched decoder cosine >= this counts as a stable feature
+  target_seed: 0                 # SAE whose features are tested against biology
+  target_layer: 9
+  min_firings: 30                # features with fewer firings on bpRNA are not reported
