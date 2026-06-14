@@ -3,6 +3,7 @@
 paths:
   data_dir: data
   activations: "{data_dir}/activations/layer_{layer}.pt"                 # RNAcentral sample, per layer
+  bprna_activations: "{data_dir}/bprna_activations/bprna_layer_{layer}.pt"
   checkpoints: "{data_dir}/checkpoints/{arch}/sae_{arch}_layer{layer}_seed{seed}.pt"
   results_dir: results
 
@@ -17,6 +18,10 @@ data:
   rnacentral:
     dataset: multimolecule/rnacentral.1024
     n_sequences: 5000                  # first 5000 streamed sequences within the length limit
+    max_length: 512
+  bprna:
+    dataset: multimolecule/bprna-90
+    n_sequences: 500
     max_length: 512
 
 sae:
