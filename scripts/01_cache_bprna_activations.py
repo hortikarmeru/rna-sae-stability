@@ -27,7 +27,8 @@ def main():
                              "labels": ex["structural_annotation"]})
         if len(examples) >= data_cfg["n_sequences"]:
             break
-    print(f"Collected {len(examples)} sequences")
+    mismatches = sum(len(e["sequence"]) != len(e["labels"]) for e in examples)
+    print(f"Collected {len(examples)} sequences; {mismatches} with annotation length mismatch")
 
     cache = {layer: {"vectors": [], "sequence_ids": [], "positions": [], "structural_labels": []}
              for layer in model_cfg["layers"]}
