@@ -8,6 +8,7 @@ Usage:
     python cache_activations.py
 """
 
+import multimolecule  # must import before from_pretrained calls; registers RiNALMo with transformers
 import torch
 from datasets import load_dataset
 from multimolecule import RnaTokenizer, RiNALMoModel
@@ -26,7 +27,7 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 
 print(f"Device: {DEVICE}")
 
-tokenizer = RnaTokenizer.from_pretrained("multimolecule/rinalmo")
+tokenizer = RnaTokenizer.from_pretrained("multimolecule/rna")
 model = RiNALMoModel.from_pretrained("multimolecule/rinalmo")
 model.to(DEVICE)
 model.eval()
