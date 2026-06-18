@@ -1,6 +1,6 @@
 """Train one SAE per layer x seed on the cached RNAcentral activations.
 
-Usage: python scripts/02_train_saes.py l1
+Usage: python scripts/02_train_saes.py {l1,topk}
 
 Activations are z-scored per dimension (mean and std saved in each checkpoint), then an SAE is
 trained for every layer in model.layers and every seed in sae.seeds with identical settings.

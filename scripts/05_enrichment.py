@@ -1,6 +1,6 @@
 """Do stable features track RNA structure? Per-feature stability joined with structural enrichment.
 
-Usage: python scripts/05_enrichment.py l1
+Usage: python scripts/05_enrichment.py {l1,topk}
 
 For the SAE at analysis.target_layer / analysis.target_seed:
   stability   each alive feature's matched cosine similarity to its partner in every other seed

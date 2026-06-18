@@ -1,10 +1,10 @@
-"""Sparse autoencoders (L1-penalized), training, and checkpoint loading."""
+"""Sparse autoencoders (L1-penalized and TopK), training, and checkpoint loading."""
 import torch
 import torch.nn as nn
 
 from rna_sae.config import data_path
 
-ARCHES = ("l1",)
+ARCHES = ("l1", "topk")
 
 
 class SparseAutoencoder(nn.Module):
@@ -25,9 +25,27 @@ class SparseAutoencoder(nn.Module):
         return self.decoder(features), features
 
 
+class TopKSparseAutoencoder(SparseAutoencoder):
+    """Keeps only the k largest pre-activations per input (then ReLU), so exactly <= k features fire.
+    Avoids the L1 failure mode where most features die and the rest fire on almost everything."""
+
+    def __init__(self, input_dim, dict_size, k):
+        super().__init__(input_dim, dict_size)
+        self.k = k
+
+    def encode(self, x):
+        pre = self.encoder(x)
+        values, indices = torch.topk(pre, self.k, dim=1)
+        features = torch.zeros_like(pre)
+        features.scatter_(1, indices, torch.relu(values))
+        return features
+
+
 def build_sae(arch, sae_config):
     if arch == "l1":
         return SparseAutoencoder(sae_config["input_dim"], sae_config["dict_size"])
+    if arch == "topk":
+        return TopKSparseAutoencoder(sae_config["input_dim"], sae_config["dict_size"], sae_config["topk"]["k"])
     raise ValueError(f"arch must be one of {ARCHES}")
 
 
@@ -69,7 +87,10 @@ def save_sae(path, sae, arch, sae_config, layer, seed, mean, std, history):
     path.parent.mkdir(parents=True, exist_ok=True)
     config = {"arch": arch, "input_dim": sae_config["input_dim"], "dict_size": sae_config["dict_size"],
               "layer": layer, "seed": seed}
-    config["l1_coeff"] = sae_config["l1"]["l1_coeff"]
+    if arch == "l1":
+        config["l1_coeff"] = sae_config["l1"]["l1_coeff"]
+    else:
+        config["k"] = sae_config["topk"]["k"]
     torch.save({"state_dict": sae.state_dict(), "mean": mean, "std": std, "config": config,
                 "history": history}, path)
 

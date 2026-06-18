@@ -1,10 +1,16 @@
 import torch
 
 from rna_sae.features import firing_counts, match_features, unit_decoder
-from rna_sae.sae import SparseAutoencoder, train_sae
+from rna_sae.sae import SparseAutoencoder, TopKSparseAutoencoder, train_sae
 
 SAE_CONFIG = {"input_dim": 8, "dict_size": 32, "learning_rate": 1e-3, "batch_size": 16, "epochs": 2,
-              "l1": {"l1_coeff": 1e-2}}
+              "l1": {"l1_coeff": 1e-2}, "topk": {"k": 4}}
+
+
+def test_topk_fires_at_most_k_features():
+    sae = TopKSparseAutoencoder(8, 32, k=4)
+    _, features = sae(torch.randn(10, 8))
+    assert ((features > 0).sum(dim=1) <= 4).all()
 
 
 def test_decoder_columns_start_at_unit_norm():
@@ -23,12 +29,12 @@ def test_matching_recovers_a_permutation():
 
 def test_same_seed_gives_identical_sae():
     data = torch.randn(64, 8)
-    a, _ = train_sae("l1", SAE_CONFIG, data, seed=3, device="cpu", log=lambda *_: None)
-    b, _ = train_sae("l1", SAE_CONFIG, data, seed=3, device="cpu", log=lambda *_: None)
+    a, _ = train_sae("topk", SAE_CONFIG, data, seed=3, device="cpu", log=lambda *_: None)
+    b, _ = train_sae("topk", SAE_CONFIG, data, seed=3, device="cpu", log=lambda *_: None)
     assert torch.equal(a.decoder.weight, b.decoder.weight)
 
 
 def test_firing_counts_shape():
-    sae = SparseAutoencoder(8, 32)
+    sae = TopKSparseAutoencoder(8, 32, k=4)
     counts = firing_counts(sae, torch.randn(50, 8), batch_size=16, device="cpu")
-    assert counts.shape == (32,) and counts.sum() <= 50 * 32
+    assert counts.shape == (32,) and counts.sum() <= 50 * 4

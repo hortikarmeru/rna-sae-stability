@@ -1,6 +1,6 @@
 """Seed stability: how many SAE features reappear when only the random seed changes.
 
-Usage: python scripts/04_stability.py l1
+Usage: python scripts/04_stability.py {l1,topk}
 
 For each layer, every pair of seeds (45 pairs for 10 seeds) is compared: alive features of the
 two SAEs are matched one-to-one by decoder cosine similarity (Hungarian algorithm), and a
