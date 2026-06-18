@@ -21,7 +21,7 @@ OUTPUT_DIR = Path("sae_checkpoints")
 
 INPUT_DIM = 1280       # RiNALMo's hidden size, fixed by the model
 DICT_SIZE = 8192        # number of SAE features (overcomplete: 8192 > 1280)
-L1_COEFF = 1e-2          # sparsity penalty strength (lambda)
+L1_COEFF = 2e-2          # sparsity penalty strength (lambda)
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 256
 N_EPOCHS = 40
