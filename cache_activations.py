@@ -28,7 +28,7 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 print(f"Device: {DEVICE}")
 
 tokenizer = RnaTokenizer.from_pretrained("multimolecule/rna")
-model = RiNALMoModel.from_pretrained("multimolecule/rinalmo")
+model = RiNALMoModel.from_pretrained("multimolecule/rinalmo-giga")
 model.to(DEVICE)
 model.eval()
 model.half()  # fp16
