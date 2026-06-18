@@ -15,7 +15,7 @@ from multimolecule import RnaTokenizer, RiNALMoModel
 from pathlib import Path
 
 # ---- Config -----------------------------------------------------------
-N_SEQUENCES = 300          # how many sequences to pull for this test run
+N_SEQUENCES = 5000          # how many sequences to pull for this test run
 BATCH_SIZE = 8             # sequences per forward pass
 LAYERS_TO_SAVE = [9, 18]   # which transformer block outputs to keep
 MAX_LENGTH = 512           # truncate/skip sequences longer than this (nucleotides)
