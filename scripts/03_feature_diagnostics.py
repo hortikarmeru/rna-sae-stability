@@ -1,9 +1,11 @@
-"""Dead-feature check for every trained SAE.
+"""Dead-feature and selectivity check for every trained SAE.
 
-Usage: python scripts/03_feature_diagnostics.py l1
+Usage: python scripts/03_feature_diagnostics.py {l1,topk}
 
 For each layer x seed, counts how many dictionary features ever fire on the RNAcentral
-activations (alive). A dead feature gets no gradient, so it was never trained. Writes results/<arch>/feature_diagnostics.csv.
+activations (alive) and how selective the alive ones are: the share of inputs each fires on,
+binned by analysis.selectivity_bins. A useful SAE has most features alive and almost all of
+them selective. Writes results/<arch>/feature_diagnostics.csv.
 """
 import csv
 import sys
@@ -23,6 +25,7 @@ def main():
         sys.exit(f"usage: 03_feature_diagnostics.py {{{','.join(ARCHES)}}}")
     config = load_config()
     eps, batch = config["sae"]["normalize_eps"], config["analysis"]["eval_batch_size"]
+    low, high = config["analysis"]["selectivity_bins"]
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     rows = []
@@ -31,10 +34,16 @@ def main():
         for seed in config["sae"]["seeds"]:
             sae, mean, std = load_sae(config, arch, layer, seed, device)
             counts = firing_counts(sae, normalize(vectors, mean, std, eps), batch, device)
-            n_alive = int((counts > 0).sum())
+            rates = counts[counts > 0] / vectors.shape[0]
+            n_alive = len(rates)
             rows.append({
                 "layer": layer, "seed": seed, "dict_size": counts.numel(), "n_alive": n_alive,
                 "pct_alive": round(100 * n_alive / counts.numel(), 2),
+                "median_firing_rate": round(rates.median().item(), 6) if n_alive else None,
+                "max_firing_rate": round(rates.max().item(), 6) if n_alive else None,
+                "n_selective": int((rates < low).sum()),
+                "n_moderate": int(((rates >= low) & (rates < high)).sum()),
+                "n_universal": int((rates >= high).sum()),
             })
             print(rows[-1], flush=True)
         del vectors
