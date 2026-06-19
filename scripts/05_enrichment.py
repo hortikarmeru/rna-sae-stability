@@ -80,9 +80,14 @@ def main():
             "best_label": label_set[best], "best_label_name": label_names.get(label_set[best], "?"),
             "max_enrichment": round(enrichment[best].item(), 2),
             "avg_stability": round(stab, 3) if stab is not None else None,
+            "is_stable": stab is not None and stab >= a_cfg["cosine_threshold"],
         })
     results.sort(key=lambda r: -r["max_enrichment"])
-    print(f"{len(results)} features with >= {a_cfg['min_firings']} firings")
+    stable = [r["max_enrichment"] for r in results if r["is_stable"]]
+    unstable = [r["max_enrichment"] for r in results if not r["is_stable"]]
+    print(f"{len(results)} features with >= {a_cfg['min_firings']} firings; mean enrichment "
+          f"stable {sum(stable) / max(len(stable), 1):.2f}x (n={len(stable)}), "
+          f"unstable {sum(unstable) / max(len(unstable), 1):.2f}x (n={len(unstable)})")
 
     out = repo_path(config["paths"]["results_dir"]) / arch / f"enrichment_layer{layer}_seed{target}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
