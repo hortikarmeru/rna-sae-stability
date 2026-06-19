@@ -6,7 +6,8 @@ For each layer, every pair of seeds (45 pairs for 10 seeds) is compared: alive f
 two SAEs are matched one-to-one by decoder cosine similarity (Hungarian algorithm), and a
 matched feature counts as stable if its similarity is >= analysis.cosine_threshold.
 Writes results/<arch>/stability_pairs.csv (one row per pair) and
-results/<arch>/stability_summary.csv (per layer: mean % stable and mean similarity).
+results/<arch>/stability_summary.csv (per layer: mean % stable and the histogram of all
+matched similarities in 0.05-wide bins).
 """
 import csv
 import sys
@@ -20,6 +21,9 @@ from rna_sae.config import load_config, repo_path
 from rna_sae.features import firing_counts, match_features, unit_decoder
 from rna_sae.meta import write_meta
 from rna_sae.sae import ARCHES, load_sae
+
+HIST_BINS = np.linspace(-1, 1, 41)
+
 
 def main():
     arch = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -42,6 +46,7 @@ def main():
             del sae
         del vectors
 
+        all_sims = []
         for a, b in combinations(seeds, 2):
             _, _, sims = match_features(decoders[a], decoders[b])
             n_stable = int((sims >= threshold).sum())
@@ -51,12 +56,16 @@ def main():
                 "pct_stable": round(100 * n_stable / len(sims), 2) if len(sims) else 0.0,
                 "mean_matched_similarity": round(sims.mean().item(), 4) if len(sims) else 0.0,
             })
+            all_sims.append(sims.numpy())
         layer_rows = [r for r in pair_rows if r["layer"] == layer]
+        hist, _ = np.histogram(np.concatenate(all_sims), bins=HIST_BINS)
         summary_rows.append({
             "layer": layer, "n_pairs": len(layer_rows),
             "mean_n_alive": round(float(np.mean(list(n_alive.values()))), 1),
             "mean_pct_stable": round(float(np.mean([r["pct_stable"] for r in layer_rows])), 2),
+            "sd_pct_stable": round(float(np.std([r["pct_stable"] for r in layer_rows], ddof=1)), 2),
             "mean_matched_similarity": round(float(np.mean([r["mean_matched_similarity"] for r in layer_rows])), 4),
+            "similarity_histogram_0.05_bins_from_-1": " ".join(map(str, hist.tolist())),
         })
         print(summary_rows[-1], flush=True)
 
