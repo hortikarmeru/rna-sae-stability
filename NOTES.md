@@ -78,3 +78,46 @@ features per input, rather than relying on an L1 penalty that can collapse into
 this near-universal-firing regime) as a likely fix, rather than just scaling up
 data, since the failure mode looks architectural/training-related rather than a
 pure data-volume problem.
+
+---
+
+## June 19 (continued) — TopK fixed both failure modes
+
+Trained a single TopK SAE first (layer 9, seed 0, K=32, same dict size 8192) to
+sanity check before committing to a full multi-seed run.
+
+recon_loss converged to 0.1445 (~85.5% variance explained) -- notably better than
+the L1 version's 0.4056 (~59%), using fewer than half the active features (32 vs
+~73 average under L1).
+
+Ran the dead-feature / firing-rate diagnostic on this single TopK SAE:
+- 8063 / 8192 features alive (98.4%) -- almost the complete opposite of L1's 98.9%
+  dead.
+- Median firing rate among alive features: 0.19% of all inputs. Max: 13.9%.
+- 100% of alive features fire on <10% of inputs (8059/8063), 0 features fire on
+  50%+ of inputs.
+
+This directly fixes both problems found yesterday: dead features mostly gone, and
+critically, no more near-universal-firing collapse. This is the precondition that
+was missing before any biology/stability analysis could be meaningful.
+
+Trained the full multi-seed batch overnight (train_sae_topk_multiseed.py, both
+layers x 10 seeds, K=32 fixed for both layers deliberately, to keep the layer
+comparison clean -- same K rather than re-tuning per layer like the L1 confound).
+
+(Mid-run hiccup, unrelated to the science: SSH server on the Windows machine
+stopped responding overnight, training process also died with no error in the log
+-- looked like an external kill, not a Python crash. Restarting the PC fixed it
+and training was restarted clean from scratch. All 20 checkpoints completed
+successfully after that.)
+
+Early observation worth flagging: layer 18's recon_loss under TopK (~0.206) is
+much closer to layer 9's (0.1445) than it was under L1, where layer 18 was clearly
+struggling (0.78-0.81 vs layer 9's 0.41). If this holds up once alive-feature
+counts are checked too, it suggests TopK may have resolved the layer-18-specific
+confound noted in the L1 section above, not just fixed layer 9.
+
+Next: re-run the full 45-pairs-per-layer stability analysis on the TopK
+checkpoints, then redo the bpRNA enrichment join -- this is the actual test of
+the original hypothesis, now with features that look like they should behave the
+way the theory predicts.
