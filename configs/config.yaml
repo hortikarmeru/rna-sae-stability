@@ -36,7 +36,7 @@ sae:
   l1:
     l1_coeff: 1.4e-2                       # tuned from 1e-2 / 2e-2 toward the target sparsity
   topk:
-    k: 32
+    k: 32                                  # same K for both layers so the layer comparison is clean
 
 analysis:
   eval_batch_size: 4096
