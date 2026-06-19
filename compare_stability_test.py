@@ -102,7 +102,7 @@ decoder_b = get_normalized_decoder(sae_b, alive_b)
 print(f"Comparing {n_alive_a} alive features (A) against {n_alive_b} alive features (B)...")
 similarity_matrix = decoder_a.T @ decoder_b
 
-cost_matrix = (-similarity_matrix).cpu().numpy()
+cost_matrix = (-similarity_matrix).detach().cpu().numpy()
 row_indices, col_indices = linear_sum_assignment(cost_matrix)
 matched_similarities = similarity_matrix[row_indices, col_indices].cpu()
 
