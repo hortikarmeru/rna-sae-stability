@@ -1,15 +1,19 @@
 """
-compare_stability_test.py
+compare_stability_test.py (v2)
 
-TEST VERSION: compares exactly one pair of SAEs (same layer, two seeds)
-to verify the stability-measurement mechanics work correctly before
-running the full 45-pair comparison.
+TEST VERSION: compares exactly one pair of SAEs (same layer, two seeds).
+
+This version only compares ALIVE features (ones that actually fired at
+least once on the training data) -- dead, never-trained features are
+excluded entirely, since comparing untrained noise vectors to each
+other corrupts the stability measurement.
 
 Usage:
     python compare_stability_test.py
 """
 
 import torch
+import torch.nn as nn
 from scipy.optimize import linear_sum_assignment
 from pathlib import Path
 
@@ -18,76 +22,101 @@ LAYER = 9
 SEED_A = 0
 SEED_B = 1
 CHECKPOINT_DIR = Path("sae_checkpoints")
+ACTIVATIONS_PATH = Path("activations") / f"layer_{LAYER}.pt"
 COSINE_THRESHOLD = 0.7
+EVAL_BATCH_SIZE = 4096
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
-def load_decoder_weights(layer, seed):
-    """Loads one SAE checkpoint and returns its decoder weight matrix,
-    with each column normalized to unit length (so cosine similarity
-    is just a dot product)."""
+class SparseAutoencoder(nn.Module):
+    def __init__(self, input_dim, dict_size):
+        super().__init__()
+        self.encoder = nn.Linear(input_dim, dict_size)
+        self.decoder = nn.Linear(dict_size, input_dim, bias=False)
+
+    def forward(self, x):
+        features = torch.relu(self.encoder(x))
+        reconstruction = self.decoder(features)
+        return reconstruction, features
+
+
+def load_sae(layer, seed):
     path = CHECKPOINT_DIR / f"sae_layer{layer}_seed{seed}.pt"
     checkpoint = torch.load(path, weights_only=True)
+    config = checkpoint["config"]
 
-    # The decoder is an nn.Linear(dict_size, input_dim, bias=False).
-    # PyTorch stores Linear weight as (out_features, in_features), i.e.
-    # (input_dim, dict_size) here -- so each COLUMN is one feature's
-    # direction in the original 1280-dim activation space.
-    decoder_weight = checkpoint["state_dict"]["decoder.weight"]  # (1280, 8192)
+    sae = SparseAutoencoder(config["input_dim"], config["dict_size"]).to(DEVICE)
+    sae.load_state_dict(checkpoint["state_dict"])
+    sae.eval()
 
-    # Normalize each column to unit length.
-    norms = decoder_weight.norm(dim=0, keepdim=True)  # (1, 8192)
-    normalized = decoder_weight / (norms + 1e-8)
-
-    return normalized.to(DEVICE)
+    mean = checkpoint["mean"].to(DEVICE)
+    std = checkpoint["std"].to(DEVICE)
+    return sae, mean, std, config
 
 
-print(f"Loading decoder weights: layer {LAYER}, seed {SEED_A} vs seed {SEED_B}")
-decoder_a = load_decoder_weights(LAYER, SEED_A)  # (1280, 8192)
-decoder_b = load_decoder_weights(LAYER, SEED_B)  # (1280, 8192)
+def find_alive_features(sae, normalized_vectors_cpu, dict_size):
+    ever_active = torch.zeros(dict_size, dtype=torch.bool, device=DEVICE)
+    with torch.no_grad():
+        for i in range(0, normalized_vectors_cpu.shape[0], EVAL_BATCH_SIZE):
+            batch = normalized_vectors_cpu[i:i + EVAL_BATCH_SIZE].to(DEVICE)
+            _, features = sae(batch)
+            ever_active |= (features > 0).any(dim=0)
+    return ever_active
 
-print(f"decoder_a shape: {decoder_a.shape}")
-print(f"decoder_b shape: {decoder_b.shape}")
 
-# ---- Cosine similarity matrix -----------------------------------------
-# Since both decoders' columns are already unit-normalized, cosine
-# similarity between feature i (in A) and feature j (in B) is simply
-# their dot product. Matrix multiplying (8192, 1280) x (1280, 8192)
-# gives us all pairwise similarities at once: an (8192, 8192) matrix
-# where entry [i, j] = cosine_similarity(feature_i_A, feature_j_B).
-print("Computing cosine similarity matrix...")
-similarity_matrix = decoder_a.T @ decoder_b  # (8192, 8192)
-print(f"Similarity matrix shape: {similarity_matrix.shape}")
-print(f"Similarity range: [{similarity_matrix.min().item():.3f}, {similarity_matrix.max().item():.3f}]")
+def get_normalized_decoder(sae, alive_mask):
+    decoder_weight = sae.decoder.weight
+    alive_weight = decoder_weight[:, alive_mask]
+    norms = alive_weight.norm(dim=0, keepdim=True)
+    normalized = alive_weight / (norms + 1e-8)
+    return normalized
 
-# ---- Hungarian matching -------------------------------------------------
-# linear_sum_assignment finds the matching that MINIMIZES total cost, so
-# we feed it negative similarity (maximizing similarity = minimizing
-# negative similarity). It requires a numpy array on CPU.
-print("Running Hungarian algorithm (this may take a moment)...")
+
+print(f"Loading SAEs: layer {LAYER}, seed {SEED_A} vs seed {SEED_B}")
+sae_a, mean_a, std_a, config_a = load_sae(LAYER, SEED_A)
+sae_b, mean_b, std_b, config_b = load_sae(LAYER, SEED_B)
+dict_size = config_a["dict_size"]
+
+print(f"Loading activations from {ACTIVATIONS_PATH}...")
+sequences = torch.load(ACTIVATIONS_PATH, weights_only=True)
+all_vectors_cpu = torch.cat(sequences, dim=0).float()
+print(f"Total token vectors: {all_vectors_cpu.shape[0]}")
+
+normalized_a_cpu = (all_vectors_cpu - mean_a.cpu()) / (std_a.cpu() + 1e-6)
+normalized_b_cpu = (all_vectors_cpu - mean_b.cpu()) / (std_b.cpu() + 1e-6)
+
+print("Finding alive features for seed A...")
+alive_a = find_alive_features(sae_a, normalized_a_cpu, dict_size)
+print("Finding alive features for seed B...")
+alive_b = find_alive_features(sae_b, normalized_b_cpu, dict_size)
+
+n_alive_a = alive_a.sum().item()
+n_alive_b = alive_b.sum().item()
+print(f"Seed A alive features: {n_alive_a}")
+print(f"Seed B alive features: {n_alive_b}")
+
+decoder_a = get_normalized_decoder(sae_a, alive_a)
+decoder_b = get_normalized_decoder(sae_b, alive_b)
+
+print(f"Comparing {n_alive_a} alive features (A) against {n_alive_b} alive features (B)...")
+similarity_matrix = decoder_a.T @ decoder_b
+
 cost_matrix = (-similarity_matrix).cpu().numpy()
 row_indices, col_indices = linear_sum_assignment(cost_matrix)
-
-# row_indices[i] is matched to col_indices[i]; since the matrix is square
-# (8192x8192) and we're not subsetting, row_indices will just be
-# [0, 1, 2, ..., 8191] in order -- but col_indices tells us, for each
-# feature in A, which feature in B it was matched to.
 matched_similarities = similarity_matrix[row_indices, col_indices].cpu()
 
-# ---- Results --------------------------------------------------------------
 n_stable = (matched_similarities >= COSINE_THRESHOLD).sum().item()
-n_total = len(matched_similarities)
-pct_stable = 100 * n_stable / n_total
+n_matched = len(matched_similarities)
+pct_stable = 100 * n_stable / n_matched if n_matched > 0 else 0.0
 
-print(f"\n--- Results: layer {LAYER}, seed {SEED_A} vs seed {SEED_B} ---")
-print(f"Total features: {n_total}")
+print(f"\n--- Results: layer {LAYER}, seed {SEED_A} vs seed {SEED_B} (alive features only) ---")
+print(f"Alive features compared: {n_matched} (min of {n_alive_a}, {n_alive_b})")
 print(f"Features with matched cosine similarity >= {COSINE_THRESHOLD}: {n_stable}")
 print(f"Percent stable: {pct_stable:.1f}%")
 print(f"Mean matched similarity: {matched_similarities.mean().item():.3f}")
 print(f"Median matched similarity: {matched_similarities.median().item():.3f}")
 
-# Sanity check: print a few example matched similarities
-print(f"\nFirst 10 matched similarities (feature index in A -> best match in B):")
-for i in range(10):
-    print(f"  A[{i}] <-> B[{col_indices[i]}]: similarity = {matched_similarities[i].item():.3f}")
+print(f"\nAll matched similarities, sorted descending:")
+sorted_sims, _ = torch.sort(matched_similarities, descending=True)
+print(sorted_sims.tolist())
