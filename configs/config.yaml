@@ -44,4 +44,5 @@ analysis:
   target_seed: 0                 # SAE whose features are tested against biology
   target_layer: 9
   min_firings: 30                # features with fewer firings on bpRNA are not reported
+  high_confidence_min_firings: 100
   selectivity_bins: [0.10, 0.50] # firing-rate cutoffs: selective / moderate / universal
