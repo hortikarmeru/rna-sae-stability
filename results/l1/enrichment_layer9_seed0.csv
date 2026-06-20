@@ -1,0 +1,94 @@
+feature_idx,total_firings,best_label,best_label_name,max_enrichment,avg_stability,is_stable
+7165,62041,X,Ambiguous,1.1,0.381,False
+269,62465,E,External Loop,1.09,0.833,True
+1211,61696,E,External Loop,1.09,0.726,True
+1783,60787,E,External Loop,1.09,0.948,True
+2332,61363,B,Bulge,1.09,0.872,True
+2506,62580,B,Bulge,1.09,0.785,True
+4243,66789,B,Bulge,1.09,0.392,False
+6015,61406,H,Hairpin Loop,1.09,0.844,True
+154,65672,I,Internal Loop,1.08,0.827,True
+1594,68758,B,Bulge,1.08,0.58,False
+1854,73081,B,Bulge,1.08,0.354,False
+1890,58109,E,External Loop,1.08,0.916,True
+2052,70027,I,Internal Loop,1.08,0.523,False
+3955,61850,M,Multiloop,1.08,0.73,True
+4133,60458,B,Bulge,1.08,0.852,True
+4916,63680,M,Multiloop,1.08,0.654,False
+6363,64956,I,Internal Loop,1.08,0.551,False
+586,70333,B,Bulge,1.07,0.379,False
+3404,58864,M,Multiloop,1.07,0.92,True
+4739,65702,H,Hairpin Loop,1.07,0.786,True
+5002,62454,E,External Loop,1.07,0.779,True
+6574,67479,E,External Loop,1.07,0.725,True
+6839,68690,X,Ambiguous,1.07,0.559,False
+7309,66995,E,External Loop,1.07,0.472,False
+117,62894,X,Ambiguous,1.06,0.782,True
+1641,67592,M,Multiloop,1.06,0.727,True
+2798,67838,H,Hairpin Loop,1.06,0.321,False
+3292,68691,H,Hairpin Loop,1.06,0.324,False
+3814,68153,E,External Loop,1.06,0.604,False
+4425,64131,B,Bulge,1.06,0.789,True
+4670,67101,E,External Loop,1.06,0.376,False
+4810,66411,I,Internal Loop,1.06,0.398,False
+5589,66378,I,Internal Loop,1.06,0.627,False
+5944,66774,B,Bulge,1.06,0.746,True
+6931,64014,E,External Loop,1.06,0.674,False
+6940,66064,I,Internal Loop,1.06,0.594,False
+7355,70801,X,Ambiguous,1.06,0.356,False
+256,66472,X,Ambiguous,1.05,0.627,False
+1282,61340,E,External Loop,1.05,0.722,True
+2491,72781,B,Bulge,1.05,0.474,False
+2535,65151,H,Hairpin Loop,1.05,0.515,False
+2848,70555,I,Internal Loop,1.05,0.57,False
+2935,71636,X,Ambiguous,1.05,0.535,False
+2936,70093,E,External Loop,1.05,0.505,False
+3583,67984,H,Hairpin Loop,1.05,0.524,False
+3924,60620,E,External Loop,1.05,0.783,True
+4806,71886,E,External Loop,1.05,0.471,False
+5524,61734,E,External Loop,1.05,0.696,False
+6199,67514,B,Bulge,1.05,0.386,False
+6237,72307,E,External Loop,1.05,0.264,False
+6498,65636,E,External Loop,1.05,0.816,True
+6516,69882,E,External Loop,1.05,0.335,False
+6943,70342,M,Multiloop,1.05,0.292,False
+7037,65759,B,Bulge,1.05,0.704,True
+362,68085,H,Hairpin Loop,1.04,0.752,True
+1352,57088,E,External Loop,1.04,0.901,True
+1869,66901,I,Internal Loop,1.04,0.445,False
+1883,64784,E,External Loop,1.04,0.514,False
+3186,69181,E,External Loop,1.04,0.622,False
+3950,62345,S,Stem,1.04,0.889,True
+4067,59182,H,Hairpin Loop,1.04,0.848,True
+4128,72209,E,External Loop,1.04,0.337,False
+5905,68197,I,Internal Loop,1.04,0.397,False
+5932,61110,B,Bulge,1.04,0.817,True
+6389,62873,S,Stem,1.04,0.625,False
+6469,66479,B,Bulge,1.04,0.498,False
+7074,70072,I,Internal Loop,1.04,0.567,False
+7577,59487,X,Ambiguous,1.04,0.927,True
+7606,64045,B,Bulge,1.04,0.571,False
+1420,72475,E,External Loop,1.03,0.522,False
+1535,64236,B,Bulge,1.03,0.305,False
+1743,58096,S,Stem,1.03,0.858,True
+2735,71423,B,Bulge,1.03,0.524,False
+3002,72742,B,Bulge,1.03,0.42,False
+4492,66218,S,Stem,1.03,0.479,False
+4661,70763,E,External Loop,1.03,0.367,False
+4900,68989,E,External Loop,1.03,0.499,False
+5058,68866,B,Bulge,1.03,0.407,False
+5363,69915,B,Bulge,1.03,0.525,False
+6226,71546,I,Internal Loop,1.03,0.531,False
+6436,71693,H,Hairpin Loop,1.03,0.243,False
+7211,66310,H,Hairpin Loop,1.03,0.543,False
+525,66160,I,Internal Loop,1.02,0.672,False
+1768,72063,S,Stem,1.02,0.745,True
+2482,67158,I,Internal Loop,1.02,0.808,True
+3645,61724,S,Stem,1.02,0.789,True
+5510,69346,X,Ambiguous,1.02,0.339,False
+5534,71145,E,External Loop,1.02,0.376,False
+6004,62844,B,Bulge,1.02,0.901,True
+6128,69682,X,Ambiguous,1.02,0.347,False
+6816,72012,B,Bulge,1.02,0.298,False
+7226,71016,H,Hairpin Loop,1.02,0.598,False
+109,71414,H,Hairpin Loop,1.01,0.406,False

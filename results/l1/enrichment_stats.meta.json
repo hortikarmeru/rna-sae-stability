@@ -1,0 +1,94 @@
+{
+  "output": "results/l1/enrichment_stats.json",
+  "created": "2026-06-19T23:09:50+00:00",
+  "git_commit": "77ef218e41b92744c2108c60ed0ed73cf3c8bf57",
+  "git_dirty": false,
+  "command": [
+    "scripts/06_enrichment_stats.py",
+    "l1"
+  ],
+  "host": "Caracal1",
+  "python": "3.10.20",
+  "packages": {
+    "scipy": "1.15.3",
+    "numpy": "2.2.6"
+  },
+  "config": {
+    "paths": {
+      "data_dir": "data",
+      "activations": "{data_dir}/activations/layer_{layer}.pt",
+      "bprna_activations": "{data_dir}/bprna_activations/bprna_layer_{layer}.pt",
+      "checkpoints": "{data_dir}/checkpoints/{arch}/sae_{arch}_layer{layer}_seed{seed}.pt",
+      "results_dir": "results"
+    },
+    "model": {
+      "name": "multimolecule/rinalmo-giga",
+      "tokenizer": "multimolecule/rna",
+      "layers": [
+        9,
+        18
+      ],
+      "dtype": "float16",
+      "batch_size": 8
+    },
+    "data": {
+      "rnacentral": {
+        "dataset": "multimolecule/rnacentral.1024",
+        "n_sequences": 5000,
+        "max_length": 512
+      },
+      "bprna": {
+        "dataset": "multimolecule/bprna-90",
+        "n_sequences": 500,
+        "max_length": 512,
+        "labels": {
+          "S": "Stem",
+          "H": "Hairpin Loop",
+          "I": "Internal Loop",
+          "B": "Bulge",
+          "M": "Multiloop",
+          "E": "External Loop",
+          "X": "Ambiguous"
+        }
+      }
+    },
+    "sae": {
+      "input_dim": 1280,
+      "dict_size": 8192,
+      "learning_rate": 0.0001,
+      "batch_size": 256,
+      "epochs": 40,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "normalize_eps": 1e-06,
+      "l1": {
+        "l1_coeff": 0.014
+      },
+      "topk": {
+        "k": 32
+      }
+    },
+    "analysis": {
+      "eval_batch_size": 4096,
+      "cosine_threshold": 0.7,
+      "target_seed": 0,
+      "target_layer": 9,
+      "min_firings": 30,
+      "high_confidence_min_firings": 100,
+      "selectivity_bins": [
+        0.1,
+        0.5
+      ]
+    }
+  }
+}

@@ -13,10 +13,39 @@ Complete for layer 9 and layer 18 of RiNALMo-giga.
 
 - [x] Activations: 5,000 RNAcentral sequences (training), 500 bpRNA-90 sequences with
       per-nucleotide structure labels (interpretation)
-- [x] L1 SAEs (10 seeds x 2 layers): failed, features collapsed
+- [x] L1 SAEs (10 seeds x 2 layers): failed (see Results)
 - [x] TopK SAEs (K = 32, 10 seeds x 2 layers)
 - [x] Seed stability, 45 seed pairs per layer
 - [x] Structural enrichment vs. stability (layer 9, seed 0)
+
+## Results
+
+**L1-penalized SAEs collapsed.** About 99% of the 8,192 features never fired, and the ~100 that
+did fired on 70–85% of all nucleotides. Their structural enrichment was 1.01–1.10x, i.e. none,
+so stability could not be related to biology with these SAEs.
+
+**TopK SAEs (K = 32) trained well.** About 98% of features are alive, the median feature fires on
+0.19% of inputs, and reconstruction explains about 85% of activation variance on layer 9.
+
+| TopK, 45 seed pairs per layer | Layer 9 | Layer 18 |
+|---|---|---|
+| Alive features per SAE | ~8,050 | ~8,160 |
+| Features stable across a seed pair (cosine >= 0.7) | 38.9% | 39.4% |
+| Mean matched cosine similarity | 0.59 | 0.60 |
+
+**Stable features are somewhat more structure-specific** (layer 9, seed 0; 6,809 features with
+at least 30 firings on bpRNA-90):
+
+| | Stable | Unstable | Test |
+|---|---|---|---|
+| Mean max enrichment | 3.40x | 2.78x | Welch t = 9.1, p < 1e-18 |
+| Same, features with >= 100 firings | 2.69x | 2.46x | p = 3e-4 |
+| Pearson r, stability vs. log enrichment | | | r = 0.16 |
+| Partial r, controlling for log firing count | | | r = 0.09, p < 1e-12 |
+
+The effect is real but small. Part of the raw correlation comes from firing frequency: rarely
+firing features are both less stable and have noisier, more extreme enrichment, so the partial
+correlation is the fairer estimate. Exact numbers for every run are in `results/`.
 
 ## Installation
 
@@ -51,6 +80,7 @@ configs/           config.yaml: model, data, SAE and analysis settings
 scripts/           numbered pipeline steps
 src/rna_sae/       SAE models and training, activation handling, feature matching
 tests/             pytest
+results/           result tables for the L1 and TopK SAEs
 ```
 
 ## Data

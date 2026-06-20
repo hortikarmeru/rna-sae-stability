@@ -1,0 +1,52 @@
+{
+  "min_firings_30": {
+    "n": 93,
+    "n_stable": 33,
+    "n_unstable": 60,
+    "mean_enrichment_stable": 1.058,
+    "mean_enrichment_unstable": 1.047,
+    "pearson_stability_enrichment": {
+      "r": 0.2469,
+      "p": 0.01704789997260187
+    },
+    "pearson_stability_log_enrichment": {
+      "r": 0.2462,
+      "p": 0.017351150568599816
+    },
+    "welch_t_stable_vs_unstable": {
+      "t": 2.326,
+      "p": 0.023592177863781018
+    },
+    "partial_r_given_log_firings": {
+      "r": -0.0137,
+      "p": 0.8963334722907114
+    },
+    "r_stability_log_firings": -0.742,
+    "r_log_enrichment_log_firings": -0.3435
+  },
+  "min_firings_100": {
+    "n": 93,
+    "n_stable": 33,
+    "n_unstable": 60,
+    "mean_enrichment_stable": 1.058,
+    "mean_enrichment_unstable": 1.047,
+    "pearson_stability_enrichment": {
+      "r": 0.2469,
+      "p": 0.01704789997260187
+    },
+    "pearson_stability_log_enrichment": {
+      "r": 0.2462,
+      "p": 0.017351150568599816
+    },
+    "welch_t_stable_vs_unstable": {
+      "t": 2.326,
+      "p": 0.023592177863781018
+    },
+    "partial_r_given_log_firings": {
+      "r": -0.0137,
+      "p": 0.8963334722907114
+    },
+    "r_stability_log_firings": -0.742,
+    "r_log_enrichment_log_firings": -0.3435
+  }
+}
